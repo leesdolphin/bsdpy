@@ -1,0 +1,28 @@
+version: '2'
+
+services:
+  bdspy:
+    build: ./docker
+    # image: bruienne/bsdpy
+    volumes:
+      - ./nbi:/nbi
+      - ./:/bsdpy/
+    ports:
+      - '0.0.0.0:67:67/udp'
+    environment:
+      - DOCKER_BSDPY_PATH=/nbi
+      - DOCKER_BSDPY_IP=192.168.1.179
+  nginx:
+    image: nginx
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf
+      - ./nbi:/nbi
+    ports:
+      - '0.0.0.0:80:80/tcp'
+  tftp:
+    image: jumanjiman/tftp-hpa:latest
+    command: ["-L", "--verbose", "-u", "tftp", "--permissive", "/nbi"]
+    ports:
+      - '0.0.0.0:69:69/udp'
+    volumes:
+      - ./nbi:/nbi
